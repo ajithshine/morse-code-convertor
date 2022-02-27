@@ -4,13 +4,8 @@
 <meta charset="UTF-8">
 <title>Morse Code Sound Generator</title>
 
-<!-- Material Design Lite https://getmdl.io -->
-<!-- <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-<link rel="stylesheet" href="https://code.getmdl.io/1.2.0/material.indigo-pink.min.css"> -->
 <script defer src="https://code.getmdl.io/1.2.0/material.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<!-- Contains dictionary of characters to morse code -->
 <script defer src="script.js"></script>
 <script src="Tone.min.js"></script>
 <link rel="stylesheet" href="style.css">
@@ -18,9 +13,6 @@
 
 <script defer type="text/javascript">
 
-// Given string, returns list of chars converted to morse code
-// ex.
-// getMorse('Test') -> ["-", "...", ".", "-"]
 function getMorse(message) {
   message = message.toUpperCase();
   morse = [];
@@ -36,10 +28,8 @@ var dash_time = dot_time*3;
 var inter_elem_time = dot_time;
 var space_time = dot_time*7;
 
-// Initial delay before starting morse code sequence
 var initial_delay = 0.1;
 
-// Track whether morse code is running
 var running = false;
 
 var addMorseText = function(morse_text) {
@@ -64,7 +54,6 @@ var stop_morse = function() {
   document.querySelector('#p1').MaterialProgress.setProgress(0);
 }
 
-// The Morse Code tone to use, 800Hz sine wave
 var osc = new Tone.Oscillator({
   "frequency": 550,
   "volume" : 0
@@ -98,7 +87,6 @@ var tone_addMsgText = function(time, char) {
   addMsgText(char);
 }
 
-// Move msg/code to global for easy access from console
 var msg;
 var code;
 
@@ -107,7 +95,6 @@ function play_morse_sequence() {
     return;
   }
 
-  // clear previous
   stop_morse();
 
   document.querySelector('#play').disabled = true;
@@ -127,51 +114,41 @@ function play_morse_sequence() {
     document.querySelector('#p1').MaterialProgress.setProgress(ratio);
   }
 
-  // Generate sequence
   var seq = [];
-  var t = initial_delay; // Our current time in the morse code sequence
+  var t = initial_delay; 
   var pos = 0;
 
   for (var i=0; i < code.length; i++) {
-    var word = code[i]; // morse code word
+    var word = code[i]; 
 
-    // If the word is just a space, handle differently
     if (word === ' ') {
-      // Push word space
       seq.push({"time":t, "func":tone_word_space});
       t += space_time;
     } else {
-      // We have a morse code word
       if (typeof word == 'undefined') {
         console.log("Skip", msg[i]);
         continue;
       }
       for (var j=0; j < word.length; j++) {
-        var char = word[j]; // morse code character
+        var char = word[j]; 
         if (char === '.') {
-          // Push a tone_dit
           seq.push({"time":t, "func":tone_dit});
           t += dot_time;
         } else if (char === '-') {
-          // Push tone_dah
           seq.push({"time":t, "func":tone_dah});
           t += dash_time;
         } else {
           console.log('Unexpected character in morse code message:', char);
         }
-        // Add inter element pause between characters
         t += inter_elem_time;
         pos += 1;
-        // Add update to progress bar
         seq.push({"time":t, "func":tone_updateProgress, "msg_char":pos});
       }
-      // Add inter-letter space
       if (i < code.length - 1 && code[i+1] !== ' ') {
         seq.push({"time":t, "func":tone_letter_space});
         t += space_time;
       }
     }
-    // Add message text to screen
     seq.push({"time":t, "func":tone_addMsgText, "msg_char":msg[i]});
     
   }
@@ -180,10 +157,8 @@ function play_morse_sequence() {
   var part = new Tone.Part(function(time, obj) {
     if (typeof obj.msg_char != 'undefined') {
       obj.func(time, obj.msg_char);
-      // console.log(time.toFixed(3), obj.func.name, obj.msg_char);
     } else {
       obj.func(time);
-      // console.log(time.toFixed(3), obj.func.name);
     }
   }, seq).start();
 
@@ -201,20 +176,16 @@ function play_morse_sequence() {
   <div class="dash-dot">
     <p>Test audio</p>
     <button class="ddbutton" onclick="tone_dit(Tone.now())">
-    <!-- <i id="dot" class="material-icons">fiber_manual_record</i> -->
     <div data-mdl-for="dot">Dot</div>
     </button>
     <button class="ddbutton" onclick="tone_dah(Tone.now())">
-    <!-- <i id="dash" class="material-icons">remove</i> -->
     <div data-mdl-for="dash">Dash</div>
     </button>
   </div>
   <br />
   <div>
-      <!-- Simple Textfield -->
     <div class="input">
       <input class="mdl-textfield__input inputsub" type="text" id="input_msg" onblur="stop_morse()" autocomplete="off" placeholder="Type here" >
-      <!-- <label class="mdl-textfield__label" for="input_msg">Write message here...</label> -->
     </div>
     <button class="ppbutton" id="play" onclick="play_morse_sequence();">
     Play Morse Sequence
@@ -225,7 +196,6 @@ function play_morse_sequence() {
   </div>
   <br />
   <div >
-    <!-- Simple MDL Progress Bar -->
     <div id="p1" class="mdl-progress mdl-js-progress"></div>
   </div>
   <br />
